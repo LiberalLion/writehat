@@ -57,20 +57,15 @@ class PageTemplate(WriteHatBaseModel):
 
     def renderFooter(self):
 
-        if self.footer:
-            footer = str(self.footer)
-        else:
-            footer = ''
-
+        footer = str(self.footer) if self.footer else ''
         try:
-            footer = render_markdown(
+            return render_markdown(
                 footer,
                 context={
                     'engagement': self.report.engagement,
-                    'report': self.report
-                }
+                    'report': self.report,
+                },
             )
-            return footer
         except AttributeError as e:
             return ''
 

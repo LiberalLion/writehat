@@ -128,7 +128,7 @@ class CVSS:
 
     def parseVector(self, vector):
 
-        vectorDict = {k:v for k,v in [s.split(':')[:2] for s in vector.split('/')[1:]]}
+        vectorDict = dict([s.split(':')[:2] for s in vector.split('/')[1:]])
         vectorDictValidated = OrderedDict()
 
         for f in self.fieldNames:
@@ -186,16 +186,23 @@ class CVSS:
 
         if self.MISS <= Decimal('0.0'):
             return 0.0
-        else:
-            if self._MS == 'U':
-                modified = roundUp(min(
-                    (self.ModifiedImpact + self.ModifiedExploitability), Decimal('10')
-                ))
-            else:
-                modified = roundUp(min(
-                    Decimal('1.08') * (self.ModifiedImpact + self.ModifiedExploitability), Decimal('10')
-                ))
-            return float(roundUp(modified * self._Ev * self._RLv * self._RCv))
+        modified = (
+            roundUp(
+                min(
+                    (self.ModifiedImpact + self.ModifiedExploitability),
+                    Decimal('10'),
+                )
+            )
+            if self._MS == 'U'
+            else roundUp(
+                min(
+                    Decimal('1.08')
+                    * (self.ModifiedImpact + self.ModifiedExploitability),
+                    Decimal('10'),
+                )
+            )
+        )
+        return float(roundUp(modified * self._Ev * self._RLv * self._RCv))
 
 
     @property
@@ -274,18 +281,25 @@ class CVSS:
                 if not attr.endswith('v'):
                     return s
 
-                else:
                     # This is an exception for "privileges required" if the scope is changed
-                    if ((cvss_attr == 'PR' and self._S == 'C') or (cvss_attr == 'MPR' and self._MS == 'C')):
-                        result = {'X': None, 'N': Decimal('0.85'), 'L': Decimal('0.68'), 'H': Decimal('0.50')}[s]
-                    else:
-                        result = self.default_fields[cvss_attr][s]
+                result = (
+                    {
+                        'X': None,
+                        'N': Decimal('0.85'),
+                        'L': Decimal('0.68'),
+                        'H': Decimal('0.50'),
+                    }[s]
+                    if (
+                        (cvss_attr == 'PR' and self._S == 'C')
+                        or (cvss_attr == 'MPR' and self._MS == 'C')
+                    )
+                    else self.default_fields[cvss_attr][s]
+                )
+                # if the "modified" value isn't set, use the non-modified one
+                if cvss_attr.startswith('M') and result is None:
+                    return self.default_fields[cvss_attr][self._vector[cvss_attr[1:]]]
 
-                    # if the "modified" value isn't set, use the non-modified one
-                    if cvss_attr.startswith('M') and result is None:
-                        return self.default_fields[cvss_attr][self._vector[cvss_attr[1:]]]
-
-                    return self.default_fields[cvss_attr][s]
+                return self.default_fields[cvss_attr][s]
 
             except KeyError as e:
                 pass
@@ -300,5 +314,4 @@ class CVSS:
 
     def __iter__(self):
 
-        for k,v in self.dict.items():
-            yield (k,v)
+        yield from self.dict.items()

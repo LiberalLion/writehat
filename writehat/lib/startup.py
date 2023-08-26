@@ -45,7 +45,7 @@ def fixMigrationBug():
 def getComponentList(componentType=None):
 
     detectedComponents = []
-    masterComponentList = dict()
+    masterComponentList = {}
     projectLocation = Path(__file__).resolve().parent.parent
     module_candidates = next(os.walk(projectLocation / 'components'))[2]
 
@@ -64,7 +64,7 @@ def getComponentList(componentType=None):
 
     # for each detected file, try to import
     for detectedComponent in detectedComponents:
-        componentName = 'writehat.components.{}'.format(detectedComponent)
+        componentName = f'writehat.components.{detectedComponent}'
 
         try:
             componentModule = importlib.import_module(componentName)
@@ -81,11 +81,11 @@ def getComponentList(componentType=None):
                 masterComponentList[detectedComponent] = componentClass
 
         except ImportError as e:
-            print('[!] Error importing {}:\n{}\n'.format(componentName, str(e)))
+            print(f'[!] Error importing {componentName}:\n{str(e)}\n')
             continue
 
     if componentType is not None:
-        raise ComponentError('Component "{}" not found'.format(str(componentType)))
+        raise ComponentError(f'Component "{str(componentType)}" not found')
 
     return masterComponentList
 

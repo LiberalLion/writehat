@@ -107,8 +107,6 @@ class BaseFindingGroup(WriteHatBaseModel):
     @classmethod
     def FindingsGroupSelect(cls, engagementId, scoringType=None):
 
-        findingGroupsList = []
-
         findingGroups = cls.filter_children(
             engagementParent=engagementId
         )
@@ -119,10 +117,11 @@ class BaseFindingGroup(WriteHatBaseModel):
             except AttributeError:
                 pass
 
-        for i in findingGroups:
-            if scoringType is None or i.scoringType == scoringType:
-                findingGroupsList.append({'id': i.id, 'name': i.name})
-
+        findingGroupsList = [
+            {'id': i.id, 'name': i.name}
+            for i in findingGroups
+            if scoringType is None or i.scoringType == scoringType
+        ]
         findingGroupsList.insert(0, {'id': '', 'name': ''})
         return findingGroupsList
 
@@ -167,8 +166,7 @@ class BaseFindingGroup(WriteHatBaseModel):
 
     def __iter__(self):
 
-        for finding in self.findings:
-            yield finding
+        yield from self.findings
 
     @property
     def parent(self):

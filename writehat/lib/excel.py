@@ -24,7 +24,7 @@ def generateExcel(CVSSEngagementFindings, DREADEngagementFindings, ProactiveEnga
     for col_num, column_title in enumerate(columns, 1):
         cell = CVSSSheet.cell(row=row_num, column=col_num)
         cell.value = column_title
-    
+
     # Iterate through CVSSEngagementFindings
     for i in CVSSEngagementFindings:
         log.debug("  Finding: {0}".format(i.id))
@@ -34,16 +34,16 @@ def generateExcel(CVSSEngagementFindings, DREADEngagementFindings, ProactiveEnga
         row = [
             i.name,
             ' -> '.join(i.category.getCategoryBreadcrumbs()[::-1]),
-            '"%s"' % i.background,
-            '"%s"' % i.description,
-            '"%s"' % i.affectedResources,
-            '"%s"' % i.proofOfConcept,
-            '"%s"' % i.remediation,
-            '"%s"' % i.toolsUsed,
+            f'"{i.background}"',
+            f'"{i.description}"',
+            f'"{i.affectedResources}"',
+            f'"{i.proofOfConcept}"',
+            f'"{i.remediation}"',
+            f'"{i.toolsUsed}"',
             i.vector,
             i.cvss.severity,
             i.cvss.score,
-            '"%s"' % i.references,
+            f'"{i.references}"',
         ]
 
         # Assign the data for each cell of the row
@@ -72,13 +72,13 @@ def generateExcel(CVSSEngagementFindings, DREADEngagementFindings, ProactiveEnga
         row = [
             i.name,
             ' -> '.join(i.category.getCategoryBreadcrumbs()[::-1]),
-            '"%s"' % i.background,
-            '"%s"' % i.description,
-            '"%s"' % i.remediation,
+            f'"{i.background}"',
+            f'"{i.description}"',
+            f'"{i.remediation}"',
             i.vector,
             i.dread.severity,
             i.dread.score,
-            '"%s"' % i.references,
+            f'"{i.references}"',
         ]
 
         # Assign the titles for each cell of the header
@@ -107,15 +107,15 @@ def generateExcel(CVSSEngagementFindings, DREADEngagementFindings, ProactiveEnga
         row = [
             i.name,
             ' -> '.join(i.category.getCategoryBreadcrumbs()[::-1]),
-            '"%s"' % i.background,
-            '"%s"' % i.description,
-            '"%s"' % i.references,
+            f'"{i.background}"',
+            f'"{i.description}"',
+            f'"{i.references}"',
         ]
 
     # Assign the titles for each cell of the header
         for col_num, cell_value in enumerate(row, 1):
             cell = ProactiveSheet.cell(row=row_num, column=col_num)
             cell.value = cell_value
-    
+
     return workbook
 
